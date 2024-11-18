@@ -61,4 +61,11 @@ vim.opt.cursorline = true
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 10
 
+vim.opt.tabstop = 2 -- Width of a tab character
+vim.opt.shiftwidth = 2 -- Width for auto-indent
+vim.opt.softtabstop = 2 -- Editing behavior for tabs
+vim.opt.expandtab = false -- Use tabs instead of spaces
+vim.opt.autoindent = true -- Enable auto-indentation
+vim.opt.smarttab = true -- Smarter tab behavior
+
 -- vim: ts=2 sts=2 sw=2 et
