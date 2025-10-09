@@ -61,7 +61,8 @@ vim.opt.winborder = 'rounded'
 
 vim.g.mapleader = ' '
 
-add 'tpope/vim-sleuth'
+add 'nmac427/guess-indent.nvim'
+require('guess-indent').setup()
 
 vim.api.nvim_create_autocmd('TextYankPost', {
   desc = 'Highlight when yanking (copying) text',
