@@ -2,17 +2,17 @@
 local path_package = vim.fn.stdpath 'data' .. '/site/'
 local mini_path = path_package .. 'pack/deps/start/mini.deps'
 if not vim.loop.fs_stat(mini_path) then
-  vim.cmd 'echo "Installing `mini.deps`" | redraw'
-  local clone_cmd = {
-    'git',
-    'clone',
-    '--filter=blob:none',
-    'https://github.com/nvim-mini/mini.deps',
-    mini_path,
-  }
-  vim.fn.system(clone_cmd)
-  vim.cmd 'packadd mini.deps | helptags ALL'
-  vim.cmd 'echo "Installed `mini.deps`" | redraw'
+	vim.cmd 'echo "Installing `mini.deps`" | redraw'
+	local clone_cmd = {
+		'git',
+		'clone',
+		'--filter=blob:none',
+		'https://github.com/nvim-mini/mini.deps',
+		mini_path,
+	}
+	vim.fn.system(clone_cmd)
+	vim.cmd 'packadd mini.deps | helptags ALL'
+	vim.cmd 'echo "Installed `mini.deps`" | redraw'
 end
 
 -- Set up 'mini.deps' (customize to your liking)
@@ -22,18 +22,24 @@ local add = MiniDeps.add
 
 -- Theme
 add {
-  source = 'vague-theme/vague.nvim',
+	source = 'vague-theme/vague.nvim',
 }
 
 vim.cmd 'colorscheme vague'
 
 --options
+
+for _, mode in ipairs({ 'n', 'x', 'o' }) do
+  vim.keymap.set(mode, 'ö', '[', { noremap = true })
+  vim.keymap.set(mode, 'ä', ']', { noremap = true })
+end
+
 vim.opt.number = true
 vim.opt.relativenumber = true
 vim.opt.mouse = 'a'
 vim.opt.showmode = false
 vim.schedule(function()
-  vim.opt.clipboard = 'unnamedplus'
+	vim.opt.clipboard = 'unnamedplus'
 end)
 
 vim.opt.breakindent = true
@@ -65,11 +71,11 @@ add 'nmac427/guess-indent.nvim'
 require('guess-indent').setup()
 
 vim.api.nvim_create_autocmd('TextYankPost', {
-  desc = 'Highlight when yanking (copying) text',
-  group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
-  callback = function()
-    vim.highlight.on_yank()
-  end,
+	desc = 'Highlight when yanking (copying) text',
+	group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
+	callback = function()
+		vim.highlight.on_yank()
+	end,
 })
 
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
@@ -82,21 +88,23 @@ vim.keymap.set('n', '<C-u>', '<C-u>zz', { noremap = true, silent = true })
 vim.keymap.set('n', '<C-d>', '<C-d>zz', { noremap = true, silent = true })
 vim.keymap.set('n', '<leader>w', ':write<CR>')
 vim.keymap.set('n', '<leader>q', ':quit<CR>')
+vim.keymap.set('n', '<leader>F', vim.lsp.buf.format)
 
 add 'nvim-mini/mini.surround'
 require('mini.surround').setup()
 
 add 'nvim-mini/mini.ai'
 require('mini.ai').setup {
-  n_lines = 500,
+	n_lines = 500,
 }
 
 add 'nvim-mini/mini.statusline'
 require('mini.statusline').setup()
 
+
 add {
-  source = 'nvim-telescope/telescope.nvim',
-  depends = { 'nvim-lua/plenary.nvim' },
+	source = 'nvim-telescope/telescope.nvim',
+	depends = { 'nvim-lua/plenary.nvim' },
 }
 pcall(require('telescope').load_extension, 'fzf')
 pcall(require('telescope').load_extension, 'ui-select')
@@ -107,23 +115,22 @@ vim.keymap.set('n', '<leader>f', builtin.find_files)
 add 'stevearc/oil.nvim'
 
 require('oil').setup {
-  default_file_explorer = true,
+	default_file_explorer = true,
 }
-
 vim.keymap.set('n', '-', ':Oil<CR>')
 
 add {
-  source = 'nvim-treesitter/nvim-treesitter',
-  hooks = {
-    post_checkout = function()
-      vim.cmd 'TSUpdate'
-    end,
-  },
+	source = 'nvim-treesitter/nvim-treesitter',
+	hooks = {
+		post_checkout = function()
+			vim.cmd 'TSUpdate'
+		end,
+	},
 }
 
 require('nvim-treesitter.configs').setup {
-  highlight = { enable = true },
-  auto_install = true,
+	highlight = { enable = true },
+	auto_install = true,
 }
 
 add 'neovim/nvim-lspconfig'
@@ -137,10 +144,7 @@ vim.keymap.set('n', 'gr', require('telescope.builtin').lsp_references)
 
 add { source = 'saghen/blink.cmp', checkout = 'v1.7.0' }
 require('blink.cmp').setup {
-  keymap = { preset = 'enter' },
-  sources = {
-    default = { 'lsp', 'path', 'buffer' },
-  },
-  signature = { enabled = true },
-  completion = { documentation = { auto_show = true } },
+	keymap = { preset = 'enter' },
+	signature = { enabled = true },
+	completion = { documentation = { auto_show = true } },
 }
