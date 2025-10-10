@@ -28,10 +28,10 @@ add {
 vim.cmd 'colorscheme vague'
 
 --options
-
+vim.opt.langmap = 'ö[,ä]'
 for _, mode in ipairs({ 'n', 'x', 'o' }) do
-  vim.keymap.set(mode, 'ö', '[', { noremap = true })
-  vim.keymap.set(mode, 'ä', ']', { noremap = true })
+	vim.keymap.set(mode, 'ö', '[', { remap = true })
+	vim.keymap.set(mode, 'ä', ']', { remap = true })
 end
 
 vim.opt.number = true
@@ -111,6 +111,8 @@ pcall(require('telescope').load_extension, 'ui-select')
 
 local builtin = require 'telescope.builtin'
 vim.keymap.set('n', '<leader>f', builtin.find_files)
+vim.keymap.set('n', '<leader>g', builtin.grep_string)
+vim.keymap.set('n', '<leader>st', builtin.builtin)
 
 add 'stevearc/oil.nvim'
 
@@ -139,8 +141,8 @@ add 'mason-org/mason.nvim'
 require('mason').setup()
 vim.lsp.enable { 'lua_ls', 'csharp_ls' }
 
-vim.keymap.set('n', 'gd', require('telescope.builtin').lsp_definitions)
-vim.keymap.set('n', 'gr', require('telescope.builtin').lsp_references)
+vim.keymap.set('n', 'gd', builtin.lsp_definitions)
+vim.keymap.set('n', 'gr', builtin.lsp_references)
 
 add { source = 'saghen/blink.cmp', checkout = 'v1.7.0' }
 require('blink.cmp').setup {
@@ -148,3 +150,6 @@ require('blink.cmp').setup {
 	signature = { enabled = true },
 	completion = { documentation = { auto_show = true } },
 }
+
+add 'windwp/nvim-autopairs'
+require("nvim-autopairs").setup()
