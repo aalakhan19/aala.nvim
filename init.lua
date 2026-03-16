@@ -29,10 +29,6 @@ vim.cmd 'colorscheme vague'
 
 --options
 vim.opt.langmap = 'ö[,ä]'
-for _, mode in ipairs({ 'n', 'x', 'o' }) do
-	vim.keymap.set(mode, 'ö', '[', { remap = true })
-	vim.keymap.set(mode, 'ä', ']', { remap = true })
-end
 
 vim.opt.number = true
 vim.opt.relativenumber = true
@@ -67,17 +63,6 @@ vim.opt.winborder = 'rounded'
 
 vim.g.mapleader = ' '
 
-add 'nmac427/guess-indent.nvim'
-require('guess-indent').setup()
-
-vim.api.nvim_create_autocmd('TextYankPost', {
-	desc = 'Highlight when yanking (copying) text',
-	group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
-	callback = function()
-		vim.highlight.on_yank()
-	end,
-})
-
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
@@ -90,12 +75,24 @@ vim.keymap.set('n', '<leader>w', ':write<CR>')
 vim.keymap.set('n', '<leader>q', ':quit<CR>')
 vim.keymap.set('n', '<leader>F', vim.lsp.buf.format)
 
+add 'nmac427/guess-indent.nvim'
+require('guess-indent').setup()
+
+vim.api.nvim_create_autocmd('TextYankPost', {
+	desc = 'Highlight when yanking (copying) text',
+	group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
+	callback = function()
+		vim.highlight.on_yank()
+	end,
+})
+
+
 add 'nvim-mini/mini.surround'
 require('mini.surround').setup()
 
 add 'nvim-mini/mini.ai'
 require('mini.ai').setup {
-	n_lines = 500,
+	n_lines = 100,
 }
 
 add 'nvim-mini/mini.statusline'
@@ -130,7 +127,7 @@ add {
 	},
 }
 
-require('nvim-treesitter.configs').setup {
+require('nvim-treesitter').setup {
 	highlight = { enable = true },
 	auto_install = true,
 }
@@ -146,10 +143,24 @@ vim.keymap.set('n', 'gr', builtin.lsp_references)
 
 add { source = 'saghen/blink.cmp', checkout = 'v1.7.0' }
 require('blink.cmp').setup {
-	keymap = { preset = 'enter' },
-	signature = { enabled = true },
-	completion = { documentation = { auto_show = true } },
+    keymap = {
+        preset = 'enter',
+        ['<C-l>'] = { 'show', 'show_documentation', 'hide_documentation' },
+    },
+    signature = { enabled = true },
+    completion = { documentation = { auto_show = true } },
 }
 
 add 'windwp/nvim-autopairs'
 require("nvim-autopairs").setup()
+
+if vim.fn.filereadable(vim.fn.getcwd() .. '/project.godot') == 1 then
+  local addr = './godot.pipe'
+  if vim.fn.has 'win32' == 1 then
+    -- Windows can't pipe so use localhost. Make sure this is configured in Godot
+    -- Exec Path: nvim
+    -- Exec Flags: --server 127.0.0.1:6004 --remote-send "<esc>:n {file}<CR>:call cursor({line},{col})<CR>"
+    addr = '127.0.0.1:6004'
+  end
+  vim.fn.serverstart(addr)
+end
