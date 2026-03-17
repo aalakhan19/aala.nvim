@@ -1,4 +1,3 @@
--- Clone 'mini.deps' manually in a way that it gets managed by 'mini.deps'
 local path_package = vim.fn.stdpath 'data' .. '/site/'
 local mini_path = path_package .. 'pack/deps/start/mini.deps'
 if not vim.loop.fs_stat(mini_path) then
@@ -28,7 +27,16 @@ add {
 vim.cmd 'colorscheme vague'
 
 --options
-vim.opt.langmap = 'ö[,ä]'
+-- vim.opt.langmap = 'ö[,ä]'
+local function feed(key)
+	return function()
+		local k = vim.api.nvim_replace_termcodes(key, true, false, true)
+		vim.api.nvim_feedkeys(k, 'm', false)
+	end
+end
+
+vim.keymap.set('n', 'ö', feed('['), { desc = '[' })
+vim.keymap.set('n', 'ä', feed(']'), { desc = ']' })
 
 vim.opt.number = true
 vim.opt.relativenumber = true
@@ -74,6 +82,7 @@ vim.keymap.set('n', '<C-d>', '<C-d>zz', { noremap = true, silent = true })
 vim.keymap.set('n', '<leader>w', ':write<CR>')
 vim.keymap.set('n', '<leader>q', ':quit<CR>')
 vim.keymap.set('n', '<leader>F', vim.lsp.buf.format)
+vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float)
 
 add 'nmac427/guess-indent.nvim'
 require('guess-indent').setup()
@@ -109,7 +118,7 @@ pcall(require('telescope').load_extension, 'ui-select')
 local builtin = require 'telescope.builtin'
 vim.keymap.set('n', '<leader>f', builtin.find_files)
 vim.keymap.set('n', '<leader>g', builtin.live_grep)
-vim.keymap.set('n', '<leader>st', builtin.builtin)
+vim.keymap.set('n', '<leader>t', builtin.builtin)
 
 add 'stevearc/oil.nvim'
 
@@ -118,19 +127,17 @@ require('oil').setup {
 }
 vim.keymap.set('n', '-', ':Oil<CR>')
 
-add {
-	source = 'nvim-treesitter/nvim-treesitter',
-	hooks = {
-		post_checkout = function()
-			vim.cmd 'TSUpdate'
-		end,
-	},
-}
 
-require('nvim-treesitter').setup {
+add({
+	source = 'nvim-treesitter/nvim-treesitter',
+	checkout = 'master',
+	monitor = 'main',
+	hooks = { post_checkout = function() vim.cmd('TSUpdate') end },
+})
+require('nvim-treesitter.configs').setup({
+	ensure_installed = { 'lua', 'vimdoc', 'c_sharp' },
 	highlight = { enable = true },
-	auto_install = true,
-}
+})
 
 add 'neovim/nvim-lspconfig'
 add 'mason-org/mason.nvim'
@@ -141,26 +148,32 @@ vim.lsp.enable { 'lua_ls', 'csharp_ls' }
 vim.keymap.set('n', 'gd', builtin.lsp_definitions)
 vim.keymap.set('n', 'gr', builtin.lsp_references)
 
+-- vim.lsp.config('csharp_ls', {
+-- 	on_attach = function(client, bufnr)
+-- 		client.server_capabilities.semanticTokensProvider = nil
+-- 	end,
+-- })
+
 add { source = 'saghen/blink.cmp', checkout = 'v1.7.0' }
 require('blink.cmp').setup {
-    keymap = {
-        preset = 'enter',
-        ['<C-l>'] = { 'show', 'show_documentation', 'hide_documentation' },
-    },
-    signature = { enabled = true },
-    completion = { documentation = { auto_show = true } },
+	keymap = {
+		preset = 'enter',
+		['<C-l>'] = { 'show', 'show_documentation', 'hide_documentation' },
+	},
+	signature = { enabled = true },
+	completion = { documentation = { auto_show = true } },
 }
 
 add 'windwp/nvim-autopairs'
 require("nvim-autopairs").setup()
 
 if vim.fn.filereadable(vim.fn.getcwd() .. '/project.godot') == 1 then
-  local addr = './godot.pipe'
-  if vim.fn.has 'win32' == 1 then
-    -- Windows can't pipe so use localhost. Make sure this is configured in Godot
-    -- Exec Path: nvim
-    -- Exec Flags: --server 127.0.0.1:6004 --remote-send "<esc>:n {file}<CR>:call cursor({line},{col})<CR>"
-    addr = '127.0.0.1:6004'
-  end
-  vim.fn.serverstart(addr)
+	local addr = './godot.pipe'
+	if vim.fn.has 'win32' == 1 then
+		-- Windows can't pipe so use localhost. Make sure this is configured in Godot
+		-- Exec Path: nvim
+		-- Exec Flags: --server 127.0.0.1:6004 --remote-send "<esc>:n {file}<CR>:call cursor({line},{col})<CR>"
+		addr = '127.0.0.1:6004'
+	end
+	vim.fn.serverstart(addr)
 end
