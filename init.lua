@@ -145,13 +145,15 @@ add({
 require('nvim-treesitter.configs').setup({
 	ensure_installed = { 'lua', 'vimdoc', 'c_sharp' },
 	highlight = { enable = true },
+	auto_install = true,
+	indent = { enable = true },
 })
 
 add 'neovim/nvim-lspconfig'
 add 'mason-org/mason.nvim'
 
 require('mason').setup()
-vim.lsp.enable { 'lua_ls', 'csharp_ls' }
+vim.lsp.enable { 'lua_ls', 'csharp_ls' , 'tinymist' }
 
 
 add { source = 'saghen/blink.cmp', checkout = 'v1.7.0' }
