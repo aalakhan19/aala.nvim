@@ -95,6 +95,8 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 	end,
 })
 
+add('nvim-mini/mini.icons')
+require('mini.icons').setup()
 
 add 'nvim-mini/mini.surround'
 require('mini.surround').setup()
@@ -107,18 +109,24 @@ require('mini.ai').setup {
 add 'nvim-mini/mini.statusline'
 require('mini.statusline').setup()
 
+add 'nvim-mini/mini.pairs'
+require('mini.pairs').setup()
 
-add {
-	source = 'nvim-telescope/telescope.nvim',
-	depends = { 'nvim-lua/plenary.nvim' },
-}
-pcall(require('telescope').load_extension, 'fzf')
-pcall(require('telescope').load_extension, 'ui-select')
+add 'nvim-mini/mini.pick'
+require('mini.pick').setup()
 
-local builtin = require 'telescope.builtin'
-vim.keymap.set('n', '<leader>f', builtin.find_files)
-vim.keymap.set('n', '<leader>g', builtin.live_grep)
-vim.keymap.set('n', '<leader>t', builtin.builtin)
+add 'nvim-mini/mini.extra'
+require('mini.extra').setup()
+
+vim.keymap.set('n', '<leader>ff', '<cmd>Pick files<CR>')
+vim.keymap.set('n', '<leader>fg', '<cmd>Pick grep_live<CR>')
+vim.keymap.set('n', '<leader>fb', '<cmd>Pick buffers<CR>')
+vim.keymap.set('n', '<leader>fd', '<cmd>Pick diagnostic<CR>')
+vim.keymap.set('n', '<leader>fr', "<cmd>Pick lsp scope='references'<CR>")
+vim.keymap.set('n', '<leader>fd', "<cmd>Pick lsp scope='definition'<CR>")
+
+vim.keymap.set('n', 'gd', vim.lsp.buf.definition)
+vim.keymap.set('n', 'gr', vim.lsp.buf.references)
 
 add 'stevearc/oil.nvim'
 
@@ -145,14 +153,6 @@ add 'mason-org/mason.nvim'
 require('mason').setup()
 vim.lsp.enable { 'lua_ls', 'csharp_ls' }
 
-vim.keymap.set('n', 'gd', builtin.lsp_definitions)
-vim.keymap.set('n', 'gr', builtin.lsp_references)
-
--- vim.lsp.config('csharp_ls', {
--- 	on_attach = function(client, bufnr)
--- 		client.server_capabilities.semanticTokensProvider = nil
--- 	end,
--- })
 
 add { source = 'saghen/blink.cmp', checkout = 'v1.7.0' }
 require('blink.cmp').setup {
@@ -164,8 +164,6 @@ require('blink.cmp').setup {
 	completion = { documentation = { auto_show = true } },
 }
 
-add 'windwp/nvim-autopairs'
-require("nvim-autopairs").setup()
 
 if vim.fn.filereadable(vim.fn.getcwd() .. '/project.godot') == 1 then
 	local addr = './godot.pipe'
