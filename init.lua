@@ -154,6 +154,7 @@ add 'mason-org/mason.nvim'
 
 require('mason').setup()
 vim.lsp.enable { 'lua_ls', 'csharp_ls' , 'tinymist' }
+vim.diagnostic.config({ virtual_text = true })
 
 
 add { source = 'saghen/blink.cmp', checkout = 'v1.7.0' }
