@@ -118,6 +118,9 @@ require('mini.pick').setup()
 add 'nvim-mini/mini.extra'
 require('mini.extra').setup()
 
+add 'chomosuke/typst-preview.nvim'
+require('typst-preview').setup()
+
 vim.keymap.set('n', '<leader>ff', '<cmd>Pick files<CR>')
 vim.keymap.set('n', '<leader>fg', '<cmd>Pick grep_live<CR>')
 vim.keymap.set('n', '<leader>fb', '<cmd>Pick buffers<CR>')
@@ -142,6 +145,7 @@ add({
 	monitor = 'main',
 	hooks = { post_checkout = function() vim.cmd('TSUpdate') end },
 })
+
 require('nvim-treesitter.configs').setup({
 	ensure_installed = { 'lua', 'vimdoc', 'c_sharp' },
 	highlight = { enable = true },
@@ -149,11 +153,13 @@ require('nvim-treesitter.configs').setup({
 	indent = { enable = true },
 })
 
-add 'neovim/nvim-lspconfig'
-add 'mason-org/mason.nvim'
+add({
+	source = 'neovim/nvim-lspconfig',
+	depends = { 'mason-org/mason.nvim' }
+})
 
 require('mason').setup()
-vim.lsp.enable { 'lua_ls', 'csharp_ls' , 'tinymist' }
+vim.lsp.enable { 'lua_ls', 'csharp_ls', 'tinymist' }
 vim.diagnostic.config({ virtual_text = true })
 
 
