@@ -20,9 +20,7 @@ require('mini.deps').setup { path = { package = path_package } }
 local add = MiniDeps.add
 
 -- Theme
-add {
-	source = 'vague-theme/vague.nvim',
-}
+add 'vague-theme/vague.nvim'
 
 vim.cmd 'colorscheme vague'
 
@@ -119,7 +117,12 @@ add 'nvim-mini/mini.extra'
 require('mini.extra').setup()
 
 add 'chomosuke/typst-preview.nvim'
-require('typst-preview').setup()
+require('typst-preview').setup(
+	{
+		dependencies_bin = { ['tinymist'] = 'tinymist' },
+		open_cmd = 'firefox %s -P typst-preview --class typst-preview'
+	}
+)
 
 vim.keymap.set('n', '<leader>ff', '<cmd>Pick files<CR>')
 vim.keymap.set('n', '<leader>fg', '<cmd>Pick grep_live<CR>')
@@ -152,6 +155,10 @@ require('nvim-treesitter.configs').setup({
 	auto_install = true,
 	indent = { enable = true },
 })
+
+vim.opt.foldmethod = "expr"
+vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+vim.opt.foldlevelstart = 99
 
 add({
 	source = 'neovim/nvim-lspconfig',
