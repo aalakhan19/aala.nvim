@@ -150,7 +150,7 @@ add({
 })
 
 require('nvim-treesitter.configs').setup({
-	ensure_installed = { 'lua', 'vimdoc', 'c_sharp', 'templ' },
+	ensure_installed = { 'lua', 'vimdoc', 'c_sharp', 'templ', 'rust', 'html' },
 	highlight = { enable = true },
 	auto_install = true,
 	indent = { enable = true },
@@ -166,7 +166,7 @@ add({
 })
 
 require('mason').setup()
-vim.lsp.enable { 'lua_ls', 'csharp_ls', 'tinymist', 'gopls', 'templ' }
+vim.lsp.enable { 'lua_ls', 'csharp_ls', 'tinymist', 'gopls', 'templ', 'html', 'htmx'}
 vim.diagnostic.config({ virtual_text = true })
 
 add { source = 'saghen/blink.cmp', checkout = 'v1.7.0' }
