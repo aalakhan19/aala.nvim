@@ -32,10 +32,6 @@ vim.opt.smarttab = true
 vim.opt.swapfile = false
 vim.opt.winborder = 'rounded'
 
-vim.opt.foldmethod = 'expr'
-vim.opt.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
-vim.opt.foldlevelstart = 99
-
 -- Keymaps
 local function feed(key)
   return function()
@@ -143,7 +139,7 @@ vim.lsp.enable { 'lua_ls', 'csharp_ls', 'tinymist', 'gopls', 'templ', 'html', 'h
 vim.diagnostic.config { virtual_text = true }
 
 -- Native completion (nvim 0.12+)
-vim.opt.completeopt = 'menuone,noselect,popup'
+vim.opt.completeopt = 'menu,menuone,noselect,popup'
 
 vim.api.nvim_create_autocmd('LspAttach', {
   callback = function(ev)
@@ -165,3 +161,70 @@ if vim.fn.filereadable(vim.fn.getcwd() .. '/project.godot') == 1 then
   end
   vim.fn.serverstart(addr)
 end
+
+require('gitsigns').setup{
+  word_diff = true,
+  on_attach = function(bufnr)
+    local gitsigns = require('gitsigns')
+
+    local function map(mode, l, r, opts)
+      opts = opts or {}
+      opts.buffer = bufnr
+      vim.keymap.set(mode, l, r, opts)
+    end
+
+    -- Navigation
+    map('n', ']h', function()
+      if vim.wo.diff then
+        vim.cmd.normal({']h', bang = true})
+      else
+        gitsigns.nav_hunk('next')
+      end
+    end)
+
+    map('n', '[h', function()
+      if vim.wo.diff then
+        vim.cmd.normal({'[h', bang = true})
+      else
+        gitsigns.nav_hunk('prev')
+      end
+    end)
+
+    -- Actions
+    map('n', '<leader>hs', gitsigns.stage_hunk)
+    map('n', '<leader>hr', gitsigns.reset_hunk)
+
+    map('v', '<leader>hs', function()
+      gitsigns.stage_hunk({ vim.fn.line('.'), vim.fn.line('v') })
+    end)
+
+    map('v', '<leader>hr', function()
+      gitsigns.reset_hunk({ vim.fn.line('.'), vim.fn.line('v') })
+    end)
+
+    map('n', '<leader>hS', gitsigns.stage_buffer)
+    map('n', '<leader>hR', gitsigns.reset_buffer)
+    map('n', '<leader>hp', gitsigns.preview_hunk)
+    map('n', '<leader>hi', gitsigns.preview_hunk_inline)
+
+    map('n', '<leader>hb', function()
+      gitsigns.blame_line({ full = true })
+    end)
+
+    map('n', '<leader>hd', gitsigns.diffthis)
+
+    map('n', '<leader>hD', function()
+      gitsigns.diffthis('~')
+    end)
+
+    map('n', '<leader>hQ', function() gitsigns.setqflist('all') end)
+    map('n', '<leader>hq', gitsigns.setqflist)
+
+    -- Toggles
+    map('n', '<leader>tb', gitsigns.toggle_current_line_blame)
+    map('n', '<leader>tw', gitsigns.toggle_word_diff)
+
+    -- Text object
+    map({'o', 'x'}, 'ih', gitsigns.select_hunk)
+  end
+}
