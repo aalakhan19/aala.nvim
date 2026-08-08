@@ -22,15 +22,13 @@ vim.opt.list = true
 vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
 vim.opt.inccommand = 'split'
 vim.opt.cursorline = true
-vim.opt.scrolloff = 10
+vim.opt.scrolloff = 5
 vim.opt.tabstop = 2
 vim.opt.shiftwidth = 2
-vim.opt.softtabstop = 2
-vim.opt.expandtab = false
+vim.opt.expandtab = true
 vim.opt.autoindent = true
-vim.opt.smarttab = true
 vim.opt.swapfile = false
-vim.opt.winborder = 'rounded'
+vim.opt.winborder= 'rounded'
 
 -- Keymaps
 local function feed(key)
@@ -84,7 +82,9 @@ vim.pack.add {
   { src = 'https://github.com/nvim-treesitter/nvim-treesitter', version = 'main' },
   'https://github.com/neovim/nvim-lspconfig',
   'https://github.com/mason-org/mason.nvim',
-  'https://github.com/lewis6991/gitsigns.nvim'
+  'https://github.com/lewis6991/gitsigns.nvim',
+  'https://github.com/saghen/blink.lib',
+  'https://github.com/saghen/blink.cmp',
 }
 
 vim.cmd 'colorscheme vague'
@@ -112,9 +112,10 @@ vim.keymap.set('n', '<leader>fb', '<cmd>Pick buffers<CR>')
 vim.keymap.set('n', '<leader>fd', '<cmd>Pick diagnostic<CR>')
 vim.keymap.set('n', '<leader>fD', "<cmd>Pick lsp scope='definition'<CR>")
 vim.keymap.set('n', '<leader>fr', "<cmd>Pick lsp scope='references'<CR>")
+vim.keymap.set('n', '<leader>fo', "<cmd>Pick lsp scope='document_symbol'<CR>")
 
 -- Treesitter (main branch: highlighting/indent/fold are opt-in per filetype)
-require('nvim-treesitter').install { 'lua', 'vimdoc', 'c_sharp', 'templ', 'rust', 'html' }
+require('nvim-treesitter').install { 'c', 'lua', 'vimdoc', 'c_sharp', 'templ', 'rust', 'html' }
 
 vim.api.nvim_create_autocmd('PackChanged', {
   callback = function(ev)
@@ -135,20 +136,17 @@ vim.api.nvim_create_autocmd('FileType', {
 
 -- LSP
 require('mason').setup()
-vim.lsp.enable { 'lua_ls', 'csharp_ls', 'tinymist', 'gopls', 'templ', 'html', 'htmx' }
+vim.lsp.config('*', { capabilities = require('blink.cmp').get_lsp_capabilities() })
+vim.lsp.enable { 'lua_ls', 'csharp_ls', 'tinymist', 'gopls', 'clangd' }
 vim.diagnostic.config { virtual_text = true }
 
--- Native completion (nvim 0.12+)
-vim.opt.completeopt = 'menu,menuone,noselect,popup'
-
-vim.api.nvim_create_autocmd('LspAttach', {
-  callback = function(ev)
-    local client = vim.lsp.get_client_by_id(ev.data.client_id)
-    if client and client:supports_method 'textDocument/completion' then
-      vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true })
-    end
-  end,
-})
+require('blink.cmp').setup {
+  keymap = { preset = 'enter' },
+  completion = {
+    documentation = { auto_show = true },
+  },
+  signature = { enabled = true },
+}
 
 -- Godot integration
 if vim.fn.filereadable(vim.fn.getcwd() .. '/project.godot') == 1 then
@@ -163,7 +161,7 @@ if vim.fn.filereadable(vim.fn.getcwd() .. '/project.godot') == 1 then
 end
 
 require('gitsigns').setup{
-  word_diff = true,
+  word_diff = false,
   on_attach = function(bufnr)
     local gitsigns = require('gitsigns')
 
