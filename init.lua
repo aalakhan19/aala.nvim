@@ -85,9 +85,10 @@ vim.pack.add {
   'https://github.com/lewis6991/gitsigns.nvim',
   'https://github.com/saghen/blink.lib',
   'https://github.com/saghen/blink.cmp',
+  'https://github.com/folke/tokyonight.nvim',
 }
 
-vim.cmd 'colorscheme vague'
+vim.cmd 'colorscheme tokyonight-storm'
 
 require('guess-indent').setup()
 require('mini.icons').setup()
