@@ -52,6 +52,9 @@ vim.keymap.set('n', '<C-d>', '<C-d>zz', { noremap = true, silent = true })
 vim.keymap.set('n', '<leader>w', ':write<CR>')
 vim.keymap.set('n', '<leader>q', ':quit<CR>')
 vim.keymap.set('n', '<leader>F', vim.lsp.buf.format)
+vim.keymap.set('v', '<leader>F', function()
+  vim.lsp.buf.format({ range = vim.lsp.util.make_range_params().range })
+end)
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float)
 
 vim.keymap.set('n', 'gd', vim.lsp.buf.definition)
@@ -86,9 +89,10 @@ vim.pack.add {
   'https://github.com/saghen/blink.lib',
   'https://github.com/saghen/blink.cmp',
   'https://github.com/folke/tokyonight.nvim',
+  'https://github.com/AlexandrosAlexiou/kotlin.nvim',
 }
 
-vim.cmd 'colorscheme tokyonight-storm'
+vim.cmd 'colorscheme tokyonight-night'
 
 require('guess-indent').setup()
 require('mini.icons').setup()
@@ -138,7 +142,9 @@ vim.api.nvim_create_autocmd('FileType', {
 -- LSP
 require('mason').setup()
 vim.lsp.config('*', { capabilities = require('blink.cmp').get_lsp_capabilities() })
-vim.lsp.enable { 'lua_ls', 'csharp_ls', 'tinymist', 'gopls', 'clangd' }
+-- remember which main file includes each file, so chapters get the bibliography
+vim.lsp.config('tinymist', { settings = { projectResolution = 'lockDatabase' } })
+vim.lsp.enable { 'lua_ls', 'csharp_ls', 'tinymist', 'gopls', 'clangd', 'kotlin_lsp' }
 vim.diagnostic.config { virtual_text = true }
 
 require('blink.cmp').setup {
