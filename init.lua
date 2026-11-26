@@ -151,8 +151,8 @@ vim.pack.add {
   'https://github.com/neovim/nvim-lspconfig',
   'https://github.com/mason-org/mason.nvim',
   'https://github.com/lewis6991/gitsigns.nvim',
-  'https://github.com/saghen/blink.lib',
-  'https://github.com/saghen/blink.cmp',
+  -- pinned to stable v1: main is the in-development v2 (needs blink.lib + a build step)
+  { src = 'https://github.com/saghen/blink.cmp', version = vim.version.range '1.*' },
   'https://github.com/folke/tokyonight.nvim',
   'https://github.com/AlexandrosAlexiou/kotlin.nvim',
   'https://github.com/nvim-lua/plenary.nvim',
