@@ -137,6 +137,14 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 })
 
 -- Plugins
+-- build steps; must be registered before vim.pack.add so they also run on first install
+vim.api.nvim_create_autocmd('PackChanged', {
+  callback = function(ev)
+    if ev.data.spec.name == 'telescope-fzf-native.nvim' and (ev.data.kind == 'install' or ev.data.kind == 'update') then
+      vim.system({ 'make' }, { cwd = ev.data.path }):wait()
+    end
+  end,
+})
 vim.pack.add {
   'https://github.com/vague-theme/vague.nvim',
   'https://github.com/nmac427/guess-indent.nvim',
@@ -157,6 +165,8 @@ vim.pack.add {
   'https://github.com/AlexandrosAlexiou/kotlin.nvim',
   'https://github.com/nvim-lua/plenary.nvim',
   'https://github.com/nvim-telescope/telescope.nvim',
+  'https://github.com/nvim-telescope/telescope-ui-select.nvim',
+  'https://github.com/nvim-telescope/telescope-fzf-native.nvim',
   'https://github.com/folke/which-key.nvim',
   'https://github.com/pwntester/octo.nvim',
 }
@@ -178,7 +188,9 @@ require('telescope').setup {
     path_display = { 'filename_first' },
     -- prompt on top, best match right below it
     sorting_strategy = 'ascending',
-    layout_config = { prompt_position = 'top' },
+    -- stacked layout: prompt, results, then preview below (mirror flips vertical's default preview-on-top)
+    layout_strategy = 'vertical',
+    layout_config = { prompt_position = 'top', vertical = { mirror = true } },
     preview = { hide_on_startup = true },
     mappings = {
       i = { ['<C-o>'] = toggle_preview },
@@ -186,6 +198,51 @@ require('telescope').setup {
     },
   },
 }
+-- route vim.ui.select (code actions etc.) through telescope, like mini.pick did before
+require('telescope').load_extension 'ui-select'
+-- native fzf sorter (compiled by the PackChanged hook above)
+require('telescope').load_extension 'fzf'
+-- fzf scores the whole path equally, so 'entity' ranks files in an entity/ folder above RatenzahlungEntity.kt;
+-- add the filename's own score on top so filename matches win (like fzf's --scheme=path)
+local telescope_conf = require('telescope.config').values
+local fzf_file_sorter = telescope_conf.file_sorter
+telescope_conf.file_sorter = function(opts)
+  local sorter = fzf_file_sorter(opts)
+  local score_path = sorter.scoring_function
+  sorter.scoring_function = function(self, prompt, line)
+    local path_score = score_path(self, prompt, line)
+    if path_score <= 0 then return path_score end -- -1 = filtered out
+    local name_score = score_path(self, prompt, vim.fs.basename(line))
+    if name_score <= 0 then return path_score end
+    -- scores are 1 / fzf_score (lower is better); sum the raw fzf scores
+    return 1 / (1 / path_score + 1 / name_score)
+  end
+  -- filename_first displays 'icon name dir' but matching runs on 'dir/name', so highlighting the display directly
+  -- misses or misplaces matches; match on the rebuilt path and map the positions back onto the display
+  local highlight_display = sorter.highlighter
+  sorter.highlighter = function(self, prompt, display)
+    -- display is '<caret or padding><icon> name dir', e.g. '> 󱈙 Foo.kt src/main'
+    local prefix = display:match '^[%s>]*%S+ '
+    local name, dir = display:sub(#(prefix or '') + 1):match '^(.*) (%S+)$'
+    if not prefix or not name then return highlight_display(self, prompt, display) end
+    local positions = {}
+    -- same preference as the scoring: if the filename alone matches, highlight it there
+    local name_positions = highlight_display(self, prompt, name)
+    if name_positions and #name_positions > 0 then
+      for _, p in ipairs(name_positions) do table.insert(positions, #prefix + p) end
+      return positions
+    end
+    for _, p in ipairs(highlight_display(self, prompt, dir .. '/' .. name) or {}) do
+      if p > #dir + 1 then
+        table.insert(positions, #prefix + p - #dir - 1)
+      elseif p <= #dir then
+        table.insert(positions, #prefix + #name + 1 + p)
+      end
+    end
+    return positions
+  end
+  return sorter
+end
 require('which-key').setup()
 require('which-key').add {
   { '<leader>f', group = 'Find' },
