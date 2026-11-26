@@ -191,7 +191,6 @@ require('telescope').setup {
     -- stacked layout: prompt, results, then preview below (mirror flips vertical's default preview-on-top)
     layout_strategy = 'vertical',
     layout_config = { prompt_position = 'top', vertical = { mirror = true } },
-    preview = { hide_on_startup = true },
     mappings = {
       i = { ['<C-o>'] = toggle_preview },
       n = { ['<C-o>'] = toggle_preview },
@@ -301,6 +300,12 @@ vim.keymap.set('n', '<leader>fd', '<cmd>Telescope diagnostics<CR>', { desc = 'Fi
 vim.keymap.set('n', '<leader>fD', '<cmd>Telescope lsp_definitions<CR>', { desc = 'Find LSP definitions' })
 vim.keymap.set('n', '<leader>fr', '<cmd>Telescope lsp_references<CR>', { desc = 'Find LSP references' })
 vim.keymap.set('n', '<leader>fo', '<cmd>Telescope lsp_document_symbols<CR>', { desc = 'Find document symbols' })
+-- replace nvim's built-in LSP maps (quickfix list) with telescope pickers
+vim.keymap.set('n', 'gd', '<cmd>Telescope lsp_definitions<CR>', { desc = 'Goto definition' })
+vim.keymap.set('n', 'grr', '<cmd>Telescope lsp_references<CR>', { desc = 'References' })
+vim.keymap.set('n', 'gri', '<cmd>Telescope lsp_implementations<CR>', { desc = 'Implementations' })
+vim.keymap.set('n', 'grt', '<cmd>Telescope lsp_type_definitions<CR>', { desc = 'Type definitions' })
+vim.keymap.set('n', 'gO', '<cmd>Telescope lsp_document_symbols<CR>', { desc = 'Document symbols' })
 
 -- GitHub PR review (uses gh auth)
 -- use_local_fs: right side of reviews is the real file on disk, so LSP, edits and gd work
